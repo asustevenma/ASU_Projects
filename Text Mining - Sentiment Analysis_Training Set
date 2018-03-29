@@ -1,0 +1,84 @@
+#import csv
+import pandas as pd
+#import numpy as np
+import string
+import re
+#import glob
+#import os
+#import operator
+import nltk
+print('The nltk version is {}.'.format(nltk.__version__))
+from nltk.corpus import stopwords
+from stemming.porter2 import stem
+#from __future__ import print_function, unicode_literals
+#from collections import defaultdict
+#from nltk.classify.api import Classifier
+#from nltk.probability import FreqDist
+
+df = pd.read_csv('C:/Users/Steven Ma/Desktop/ASU - Business Analytics/Applied Project/Text Data/Training_Test.csv', sep=',')
+
+pos_tweets = []
+neg_tweets = []
+
+for index, row in df.iterrows():
+    if row['Sentiment'] == "Pos":
+        pos_tuple = tuple([row['SentimentText'], row['Sentiment']])
+        pos_tweets.append(pos_tuple)
+
+for index, row in df.iterrows():
+    if row['Sentiment'] == "Neg":
+        neg_tuple = tuple([row['SentimentText'], row['Sentiment']])
+        neg_tweets.append(neg_tuple)
+
+# Text processing
+tweets = []
+regex = re.compile('[%s]' % re.escape(string.punctuation))
+sw = stopwords.words("english")
+
+for (words, sentiment) in pos_tweets + neg_tweets:
+    words_removed = regex.sub('', words)
+    words_lowered = [e.lower() for e in words_removed.split()]
+    words_nonstopped = [w for w in words_lowered if w not in sw]
+    words_stemmed = [stem(txt) for txt in words_nonstopped]
+    tweets.append((words_stemmed, sentiment))
+print(tweets)
+
+# List of Word Features
+def get_words_in_tweets(tweets):
+    all_words = []
+    for (words, sentiment) in tweets:
+      all_words.extend(words)
+    return all_words
+
+def get_word_features(wordlist):
+    WordList = nltk.FreqDist(wordlist)
+    print("=====Feature Expression=====")
+    print(WordList)
+    print("====Top 10 Most Common=====")
+    print(WordList.most_common(10))
+    print("============================")
+    word_features = list(WordList.keys())
+    return word_features
+
+word_features = get_word_features(get_words_in_tweets(tweets))
+#print("Word Features :", word_features)
+
+# Feature Extractor
+def extract_features(document):
+    document_words = set(document)
+    features = {}
+    for word in word_features:
+        features['contains(%s)' % word] = (word in document_words)
+    return features
+
+Extract_Features = extract_features(word_features)
+print("Extract_Features :", Extract_Features)
+
+# Training Set
+
+training_set = nltk.classify.util.apply_features(extract_features, tweets)
+print("Training Set :", training_set)
+
+# Training Classifier
+
+classifier = nltk.NaiveBayesClassifier.train(training_set)
