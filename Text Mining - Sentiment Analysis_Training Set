@@ -15,7 +15,7 @@ from stemming.porter2 import stem
 #from nltk.classify.api import Classifier
 #from nltk.probability import FreqDist
 
-df = pd.read_csv('C:/Users/Steven Ma/Desktop/ASU - Business Analytics/Applied Project/Text Data/Training_Test.csv', sep=',')
+df = pd.read_csv('#user-defined path#', sep=',')
 
 pos_tweets = []
 neg_tweets = []
