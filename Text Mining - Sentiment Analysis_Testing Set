@@ -12,7 +12,7 @@ from stemming.porter2 import stem
 from nltk.classify.api import ClassifierI
 
 # Read CSV file and build a dataframe #
-path = 'C:/Users/Steven Ma/Desktop/ASU - Business Analytics/Applied Project/Tweets'
+path = '#user-defined#'
 csvFiles = glob.glob(path + "/*.csv")
 Doc = os.listdir(path)
 
