@@ -1,1 +1,69 @@
-ddd
+import numpy as np
+import pandas as pd
+
+# Import classifiers thay you want to use
+from sklearn import tree
+from sklearn.ensemble import RandomForestClassifier
+
+# Import model tuning   methods
+from sklearn.model_selection import train_test_split
+from sklearn.model_selection import cross_val_score
+from sklearn.model_selection import GridSearchCV
+from sklearn.model_selection import RandomizedSearchCV
+
+# Import evaluate methods that you want to use
+from sklearn.metrics import accuracy_score
+from sklearn.metrics import confusion_matrix
+from sklearn.metrics import f1_score
+from sklearn.metrics import roc_curve, auc , roc_auc_score
+
+# Read Data
+train_df = pd.read_csv("Desktop/Launch_Angle_Training.csv")
+#test_df = pd.read_csv("Desktop/Test_data.csv")
+
+# Drop every row with NAN
+train_clean = train_df.dropna()
+
+# Get statistics about the data(Optional)
+#print(train_clean.describe())
+
+# Prepare trainning dataset and target dataset
+train_X = train_clean.drop('Outcome', axis = 1)
+target = pd.factorize(train_clean['Outcome'])[0]
+
+# Convert text data(object type) into dummy variables
+train_convert = pd.get_dummies(data = train_X, columns=['pitch_type', 'stand', 'p_throws', 'bb_type'])
+
+# Split dataset to train the model
+X_train, X_test, y_train, y_test = train_test_split(train_convert, target, test_size = 0.2, random_state=42)
+
+# Create Random Forest object and Initialize Random Forest Classsifer
+randomforest_model = RandomForestClassifier(n_estimators=1000)
+
+# Compute 5-fold cross-validation to examine the model
+cv_scores = cross_val_score(randomforest_model, train_convert, target, cv=5)
+print(cv_scores)
+
+# Setup the hyperparameter grid
+c_space = np.logspace(-5, 8, 15)
+param_grid = {'C': c_space}
+
+# Hyperparameter tuning - instantiate the RandomizedSearchCV object: randomforest_cv
+randomforest_cv = GridSearchCV(randomforest_model, param_grid, cv=5)
+
+# Fit Training Data
+randomforest_cv.fit(X_train, y_train)
+
+# predict Output
+y_predict = randomforest_model.predict(X_test)
+print(y_predict)
+
+# Get accuracy score
+acc_score = accuracy_score(y_test, y_predict)
+print("Accuracy Score:", acc_score)
+# Get F1 accuracy score
+f1 = f1_score(y_test, y_predict, average = 'weighted')
+print("F1 Score:", f1)
+
+# Create confusion matrix
+pd.crosstab(y_test, y_predict, rownames=['Actual Outcomes'], colnames=['Predicted Outcomes'])
