@@ -1,3 +1,9 @@
+# The data is downloaded from Baseballsavant(baseballsavant.mlb.com) and Fangraphs(https://www.fangraphs.com/)
+# Here I focus on the machine learning part. I use RandomForest as classifier for this project.
+# Dataset has already been manipulated before reading into this model. I manually filtered out features that I don't need
+# (eg. player's ID, home team, away team., etc)
+# Only those "hit-into-play" ball occures launch angle. No angles occure if the batter is walked, striked out or hits a foul ball. 
+
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
